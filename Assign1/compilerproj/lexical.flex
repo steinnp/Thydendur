@@ -148,6 +148,8 @@ comment = \/\*[^]*\*\/ | \/\/ .* \n
 {id} {
     if(yytext().length() <= 32)
         return new Token(TokenCode.IDENTIFIER, OpType.NONE, DataType.ID, yytext());
+    else
+        return new Token(TokenCode.ERR_LONG_ID, OpType.NONE, DataType.NONE, "");
     }
 {WS} {}
 [^\ ] { return new Token(TokenCode.ERR_ILL_CHAR, OpType.NONE, DataType.NONE, "");}
