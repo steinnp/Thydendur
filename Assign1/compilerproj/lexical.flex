@@ -146,7 +146,7 @@ comment = \/\*[^]*\*\/ | \/\/ .* \n
     }
 }
 {id} {
-    if(yytext().length() <= 31)
+    if(yytext().length() <= 32)
         return new Token(TokenCode.IDENTIFIER, OpType.NONE, DataType.ID, yytext());
     }
 {WS} {}
