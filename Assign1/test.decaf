@@ -24,3 +24,7 @@ line
 comment
 */
 // single line comment
+illegal_character
+$
+long_id
+abcdefabcdefabcdefabcdefabcdefabcdef
