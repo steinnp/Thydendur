@@ -1,0 +1,258 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage{apacite}
+\usepackage{natbib}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[icelandic]{babel}
+\usepackage{amsmath, amsthm, amssymb, amsfonts}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{tkz-euclide}
+\usetkzobj{all}
+\usepackage{hyperref}
+\usepackage{pgfplots}
+\usepackage{geometry}
+\usepackage{setspace} 
+\usepackage{pdflscape}
+\usepackage{mathtools}
+\usepackage{fixltx2e}
+\usepackage{array}
+\setlength\parindent{0pt}
+\newtheorem*{problem}{\emph{Problem}}
+\newtheorem*{solution}{\emph{Solution}}
+\newcommand*\rfrac[2]{{}^{#1}\!/_{#2}} %small fraction
+\begin{document}
+\begin{titlepage}
+\begin{center}
+
+\textsc{\huge Haust 2016}\\[1.5cm]
+
+\textsc{\huge Þýðendur}\\[0.2cm]
+\textsc{\huge T-603-THYD}\\[1.5cm]
+
+\end{center}
+{ \huge Homework 2\\[1.5cm] }
+% Author and supervisor
+\Large {
+\emph{Nemandi:}\\
+Steinn Elliði Pétursson\\[0.5cm]
+\emph{Kennitala:}\\
+250594-2759\\[0.5cm]
+{\large \today}\\[0.5cm]
+\emph{Kennari:} \\
+Friðjón Guðjohnsen}\\
+
+\end{titlepage}
+\leavevmode
+
+\section{}
+	Consider the following grammar:\\~\\
+		$S \rightarrow \textbf{a}A | \textbf{a}B | \textbf{ac}A | \textbf{ac}C$\\
+		$A \rightarrow A\textbf{a} | BC$\\
+		$B \rightarrow B\textbf{b} | \epsilon$\\
+		$C \rightarrow \textbf{c}C | \textbf{c}$\\
+	\subsection*{a} 
+		Construct a left-most derivation of the string \textbf{acbcca}. Show each step in the derivation.
+	\begin{solution}
+	\end{solution}
+		$S \rightarrow \textbf{ac}A \rightarrow \textbf{ac}A\textbf{a} \rightarrow \textbf{ac}BC\textbf{a}
+		      \rightarrow \textbf{ac}B\textbf{b}C\textbf{a} \rightarrow \textbf{acb}C\textbf{a}
+		      \rightarrow \textbf{acbc}C\textbf{a} \rightarrow \textbf{acbcca}$
+
+	\subsection*{b}
+		Is the grammar ambiguous? If you think that the grammar is ambiguous, then provide an example of a string for which two (or more) parse trees exist and show the parse trees. If you think that the grammar in unambiguous, then provide a convincing justification for your answer.
+	\begin{solution}
+	\end{solution}
+		This grammar is ambiguous. Following is an example of two parse trees for the string \textbf{acc}\\
+		\includegraphics[height=10cm]{/Users/steinn/Desktop/ambiguousparse1.png}~\\
+		\includegraphics[height=10cm]{/Users/steinn/Desktop/ambiguousparse2.png}~\\
+
+	\subsection*{c}
+		Eliminate left-recursion from the grammar
+		\begin{solution}
+		\end{solution}
+		$S \rightarrow \textbf{a}A | \textbf{a}B | \textbf{ac}A | \textbf{ac}C$\\
+		$A \rightarrow BCA'$\\
+		$A' \rightarrow \textbf{a}A' | \epsilon$\\
+		$B \rightarrow B'$\\
+		$B' \rightarrow \textbf{b}B' | \epsilon$\\
+		$C \rightarrow \textbf{c}C | \textbf{c}$
+
+	\subsection*{d}
+		Left factor the grammar you created in the previous step (c).\\
+		\begin{solution} \end{solution}
+		$S \rightarrow \textbf{a} | S'$\\
+		$S' \rightarrow A | B | \textbf{c}S''$\\
+		$S'' \rightarrow A | C$\\
+		$A \rightarrow BCA'$\\
+		$A' \rightarrow \textbf{a}A' | \epsilon$\\
+		$B \rightarrow B'$
+		$B' \rightarrow \textbf{b}B' | \epsilon$\\
+		$C \rightarrow \textbf{c}C'$\\
+		$C' \rightarrow C | \epsilon$
+	\subsection*{e}
+		Construct a left-most derivation of the string acbcca, now using the grammar you created in the previous step (d).
+		\begin{solution}\end{solution}
+		$S \rightarrow \textbf{a}S' \rightarrow \textbf{ac}S'' \rightarrow \textbf{ac}A 
+		      \rightarrow \textbf{ac}BCA' \rightarrow \textbf{acb}BCA' \rightarrow \textbf{acb}CA'
+		      \rightarrow \textbf{acbc}C'A' \rightarrow \textbf{acbc}CA' \rightarrow \textbf{acbcc}C'A'
+		      \rightarrow \textbf{acbcc}A' \rightarrow \textbf{acbcca}A' \rightarrow \textbf{acbcca}
+		$
+
+\section{}
+		Consider the following grammar:\\
+	$
+		\textit{bexpr} \rightarrow \textit{bexpr}\ \textbf{or}\ \textit{bterm} | \textit{bterm}\\
+		\textit{bterm} \rightarrow \textit{bterm}\ \textbf{and}\ \textit{bfactor} | \textit{bfactor}\\
+		\textit{bfactor} \rightarrow \textbf{not}\ \textit{bfactor} | \textbf{(}\ \textit{bexpr}\ \textbf{)} | \textbf{true} | \textbf{false}
+	$\\
+	where the set of terminals is $\{\textbf{not}, \textbf{or}, \textbf{and}, \textbf{(}, \textbf{)}, \textbf{true}, \textbf{false}, \}$.
+
+\subsection*{a}
+	Eliminate left-recursion from this grammar
+	\begin{solution}\end{solution}
+	$
+		\textit{bexpr} \rightarrow \textit{bterm}\ \textit{bexpr'}\\
+		\textit{bexpr'} \rightarrow \textbf{or}\ \textit{bterm}\ \textit{bexpr'} | \epsilon\\
+		\textit{bterm} \rightarrow \textit{bfactor}\ \textit{bterm'}\\
+		\textit{bterm'} \rightarrow \textbf{and}\ \textit{bfactor}\ \textit{bterm'} | \epsilon\\
+		\textit{bfactor} \rightarrow \textbf{not}\ \textit{bfactor} | \textbf{(}\ \textit{bexpr}\ \textbf{)} | \textbf{true} | \textbf{false}
+	$
+
+\subsection*{b}
+	Give the FIRST and FOLLOW sets for all non-terminal symbols in the grammar you created in the previous step (a).
+	\begin{solution}\end{solution}
+		\begin{tabular}{|l|l||l|}
+		\hline
+		NON-TERMINAL & FIRST & FOLLOW\\
+		\hline
+		bexpr & \{ not, (, true, false \} & \{ ), \$ \}\\
+		\hline
+		bexpr' & \{ or, $\epsilon$ \} & \{ ), \$ \}\\ 
+		\hline
+		bterm & \{ not, (, true, false \} & \{ or, ), \$ \}\\
+		\hline
+		bterm' & \{ and, $\epsilon$ \} & \{ or, ), \$ \}\\
+		\hline
+		bfactor & \{ not, (, true, false \} & \{ or, ), \$, and \}\\
+		\hline
+		\end{tabular}
+
+\section{}
+Consider the following LL(1) grammar:\\
+	$
+		S \rightarrow \textbf{a}AC\\
+		A \rightarrow BD\\
+		B \rightarrow \textbf{bc}B | \epsilon\\
+		C \rightarrow \textbf{c} | \epsilon\\
+		D \rightarrow \textbf{d}
+	$
+\subsection*{a}
+	Show the FIRST and FOLLOW sets for the non-terminals S, A, B, C and D.
+	\begin{solution}\end{solution}
+		\begin{tabular}{|l|l||l|}
+			\hline
+			NON-TERMINAL & FIRST & FOLLOW\\
+			\hline
+			S & \{ a \} & \{ \$ \}\\
+			\hline
+			A & \{ b, d \} & \{ c, \$ \}\\
+			\hline
+			B & \{ b, $\epsilon$ \} & \{ d \}\\
+			\hline
+			C & \{ c, $\epsilon$ \} & \{ \$ \}\\
+			\hline
+			D & \{ d \} & \{ c, \$ \}\\
+			\hline
+		\end{tabular}
+
+\subsection*{b}
+	Construct a predictive parsing table for the given grammar.
+	\begin{solution}\end{solution}
+		\begin{tabular}{|l|l|l|l|l|l|}
+			\hline
+			  & a & b & c & d & \$\\
+			\hline
+			S & $S \rightarrow \textbf{a}AC$ & & & &\\
+			\hline
+			A & & $A\rightarrow BD$ & & $A\rightarrow BD$ & \\
+			\hline
+			B & & $B\rightarrow \textbf{bc}B$ & & $B \rightarrow \epsilon$ &\\
+			\hline
+			C & & & $C\rightarrow \textbf{c}$ & & $C \rightarrow \epsilon$\\
+			\hline
+			D & & & & $D \rightarrow \textbf{d} $ & \\
+			\hline 
+		\end{tabular}
+\subsection*{c}
+	Show the moves of a non-recursive predictive parser on the input \textbf{abcd}. Show each step, as done on page 228 in the textbook.
+	\begin{solution}\end{solution}
+	\begin{tabular}{|l|l|l|l|}
+	\hline
+	Matched & Stack & Input & Action\\
+	\hline
+	 & S\$ & abcd\$ & \\
+	\hline
+	 & aAC\$ & abcd\$ & output $S \rightarrow aAC$\\
+	\hline
+	a & AC\$ & bcd\$ & match a\\
+	\hline
+	a & BDC\$ & bcd\$ & output $A \rightarrow BD$\\
+	\hline
+	a & bcBDC\$ & bcd\$ & output $B \rightarrow bcB$\\
+	\hline
+	ab & cBDC\$ & cd\$ & match b\\
+	\hline
+	abc & BDC\$ & d\$ & match c\\
+	\hline
+	abc & DC\$ & d\$ & output $B \rightarrow \epsilon$\\
+	\hline
+	abc & dC\$ & d\$ & output $D \rightarrow d$\\
+	\hline
+	abcd & C\$ & \$ & match d\\
+	\hline
+	abcd & \$ & \$ & output $C \rightarrow \epsilon$\\
+	\hline
+	\end{tabular}
+
+\section{}
+	Consider the grammar G given below:\\
+	$
+	E \rightarrow E+E\\
+	E \rightarrow E*E\\
+	E \rightarrow ( E )\\
+	E \rightarrow id\\
+	$
+\subsection*{a}
+	Construct the collection of sets of LR(0) items for G, together with the DFA for viable prefixes that can appear on the stack of a shift/reduce parser.
+	\begin{solution}
+	\end{solution}
+	$
+	E \rightarrow . E + E\\
+	E \rightarrow E.+E\\
+	E \rightarrow E+.E\\
+	E \rightarrow E+E.\\
+	E \rightarrow .E*E\\
+	E \rightarrow E.*E\\
+	E \rightarrow E*.E\\
+	E \rightarrow E*E.\\
+	E \rightarrow .( E )\\
+	E \rightarrow (. E )\\
+	E \rightarrow ( E. )\\
+	E \rightarrow ( E ).\\
+	E \rightarrow .id\\
+	E \rightarrow id.\\
+	$
+
+\subsection*{b}
+	Show the FIRST and FOLLOW sets for the nonterminal E.
+	\begin{solution}
+	\end{solution}
+	\begin{tabular}{|l|l|l|}
+	\hline
+	NON-TERMINAL & FIRST & FOLLOW\\
+	\hline
+	E & \{ (, id \} & \{ \$, +, *, ) \}\\
+	\hline
+	\end{tabular}
+\end{document}

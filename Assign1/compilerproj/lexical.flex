@@ -22,6 +22,7 @@ digits = {digit}+
 optional_fraction = (\.{digits})?
 optional_exponent = (E(\+ | -)? {digits})?
 num = {digits}{optional_fraction}{optional_exponent}
+
 incdecop = \+\+|--
 addop = \+ | - | \|\|
 mulop = \* | \/ | % | &&
@@ -34,12 +35,15 @@ comment = \/\*[^]*\*\/ | \/\/ .* \n
 
 %%
 {comment} {}
-{num} {
-    if (yytext().indexOf(".") >= 0) {
-        return new Token(TokenCode.NUMBER, OpType.NONE, DataType.REAL, yytext());
-    } else {
+{digits} {
         return new Token(TokenCode.NUMBER, OpType.NONE, DataType.INT, yytext());
-    }
+}
+{num} {
+//    if (yytext().indexOf(".") >= 0) {
+        return new Token(TokenCode.NUMBER, OpType.NONE, DataType.REAL, yytext());
+//    } else {
+//        return new Token(TokenCode.NUMBER, OpType.NONE, DataType.INT, yytext());
+//    }
 }
 {incdecop} {
     if (yytext().equals("++")) {
@@ -149,7 +153,7 @@ comment = \/\*[^]*\*\/ | \/\/ .* \n
     if (yytext().length() < 33) {
     return new Token(TokenCode.IDENTIFIER, OpType.NONE, DataType.ID, yytext());
     } else {
-        return new Token(TokenCode.ERR_ILL_CHAR, OpType.NONE, DataType.NONE, "");
+        return new Token(TokenCode.ERR_LONG_ID, OpType.NONE, DataType.NONE, "");
     }
 }
 {WS} {}

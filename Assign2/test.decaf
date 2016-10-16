@@ -1,0 +1,30 @@
+identifier
+aegae
+longIdentifier
+thisIsAnUnneccessarilyLongIdentifier
+thisIdentifierIsJustLongEnoughhh
+number
+12345 1234.45 12.3E7 12E7 12.3E-7 12.3E+7
+incdecop
+++ --
+relop
+== != < > <= >=
+mulop
+* / % &&
+addop
++ - ||
+assignop
+= 
+special
+() {} [] , ; !
+keyword
+class static void if else for return break continue int real
+/* multi
+line
+comment
+*/
+// single line comment
+illegal_character
+$
+long_id
+abcdefabcdefabcdefabcdefabcdefabcdef

@@ -55,7 +55,7 @@ class Lexer {
   private static final String ZZ_ACTION_PACKED_0 =
     "\1\0\1\1\1\2\1\3\2\4\1\1\2\5\1\1"+
     "\1\6\1\7\1\10\1\11\1\7\10\2\2\0\1\12"+
-    "\1\4\2\0\1\10\3\2\1\13\6\2\2\3\2\0"+
+    "\1\4\2\0\1\10\3\2\1\13\6\2\2\14\2\0"+
     "\1\11\10\2\1\11\11\2";
 
   private static int [] zzUnpackAction() {
@@ -669,23 +669,19 @@ class Lexer {
           case 1: 
             { return new Token(TokenCode.ERR_ILL_CHAR, OpType.NONE, DataType.NONE, "");
             }
-          case 12: break;
+          case 13: break;
           case 2: 
             { if (yytext().length() < 33) {
     return new Token(TokenCode.IDENTIFIER, OpType.NONE, DataType.ID, yytext());
     } else {
-        return new Token(TokenCode.ERR_ILL_CHAR, OpType.NONE, DataType.NONE, "");
-    }
-            }
-          case 13: break;
-          case 3: 
-            { if (yytext().indexOf(".") >= 0) {
-        return new Token(TokenCode.NUMBER, OpType.NONE, DataType.REAL, yytext());
-    } else {
-        return new Token(TokenCode.NUMBER, OpType.NONE, DataType.INT, yytext());
+        return new Token(TokenCode.ERR_LONG_ID, OpType.NONE, DataType.NONE, "");
     }
             }
           case 14: break;
+          case 3: 
+            { return new Token(TokenCode.NUMBER, OpType.NONE, DataType.INT, yytext());
+            }
+          case 15: break;
           case 4: 
             { switch(yytext()) {
         case "+":
@@ -698,7 +694,7 @@ class Lexer {
             break;
     }
             }
-          case 15: break;
+          case 16: break;
           case 5: 
             { switch(yytext()) {
         case "*":
@@ -713,11 +709,11 @@ class Lexer {
             break;
     }
             }
-          case 16: break;
+          case 17: break;
           case 6: 
             { return new Token(TokenCode.ASSIGNOP, OpType.NONE, DataType.NONE, "");
             }
-          case 17: break;
+          case 18: break;
           case 7: 
             { switch(yytext()) {
         case "(":
@@ -742,7 +738,7 @@ class Lexer {
             break;
     }
             }
-          case 18: break;
+          case 19: break;
           case 8: 
             { switch(yytext()) {
         case "==":
@@ -761,11 +757,11 @@ class Lexer {
             break;
     }
             }
-          case 19: break;
+          case 20: break;
           case 9: 
             { 
             }
-          case 20: break;
+          case 21: break;
           case 10: 
             { if (yytext().equals("++")) {
         return new Token(TokenCode.INCDECOP, OpType.INC, DataType.OP, "");
@@ -773,7 +769,7 @@ class Lexer {
         return new Token(TokenCode.INCDECOP, OpType.DEC, DataType.OP, "");
     }
             }
-          case 21: break;
+          case 22: break;
           case 11: 
             { switch(yytext()) {
         case "class":
@@ -800,7 +796,15 @@ class Lexer {
             return new Token(TokenCode.REAL, OpType.NONE, DataType.KEYWORD, "");
     }
             }
-          case 22: break;
+          case 23: break;
+          case 12: 
+            { //    if (yytext().indexOf(".") >= 0) {
+        return new Token(TokenCode.NUMBER, OpType.NONE, DataType.REAL, yytext());
+//    } else {
+//        return new Token(TokenCode.NUMBER, OpType.NONE, DataType.INT, yytext());
+//    }
+            }
+          case 24: break;
           default:
             zzScanError(ZZ_NO_MATCH);
         }
