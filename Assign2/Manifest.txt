@@ -1,2 +1,2 @@
-Main-Class: compilerproj.TokenDumper
+Main-Class: compilerproj.Parser
 

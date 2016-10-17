@@ -50,5 +50,11 @@ public class Token {
     public DataType getDataType (){
         return this.dataType;
     }
+    public int getLine() {
+        return this.line;
+    }
+    public int getColumn() {
+        return this.column;
+    }
 }
 
