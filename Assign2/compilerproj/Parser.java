@@ -303,9 +303,10 @@ public class Parser {
     }
 
     static ArrayList<TokenCode> method_declarationTokens1 = new ArrayList<TokenCode>(Arrays.asList(TokenCode.INT, TokenCode.REAL, TokenCode.VOID, TokenCode.LBRACE));
-    static ArrayList<TokenCode> method_declarationTokens2 = new ArrayList<TokenCode>(Arrays.asList(TokenCode.LPAREN, TokenCode.LBRACE));
-    static ArrayList<TokenCode> method_declarationTokens3 = new ArrayList<TokenCode>(Arrays.asList(TokenCode.RPAREN, TokenCode.LBRACE));
-    static ArrayList<TokenCode> method_declarationTokens4 = new ArrayList<TokenCode>(Arrays.asList(TokenCode.LBRACE));
+    static ArrayList<TokenCode> method_declarationTokens2 = new ArrayList<TokenCode>(Arrays.asList(TokenCode.LPAREN, TokenCode.LBRACE, TokenCode.IDENTIFIER, TokenCode.IF, TokenCode.FOR, TokenCode.RETURN, TokenCode.BREAK, TokenCode.CONTINUE, TokenCode.INT, TokenCode.REAL));
+    static ArrayList<TokenCode> method_declarationTokens3 = new ArrayList<TokenCode>(Arrays.asList(TokenCode.RPAREN, TokenCode.LBRACE, TokenCode.IDENTIFIER, TokenCode.IF, TokenCode.FOR, TokenCode.RETURN, TokenCode.BREAK, TokenCode.CONTINUE, TokenCode.INT, TokenCode.REAL));
+    static ArrayList<TokenCode> method_declarationTokens4 = new ArrayList<TokenCode>(Arrays.asList(TokenCode.LBRACE, TokenCode.IDENTIFIER, TokenCode.IF, TokenCode.FOR, TokenCode.RETURN, TokenCode.BREAK, TokenCode.CONTINUE, TokenCode.INT, TokenCode.REAL));
+    static ArrayList<TokenCode> method_declarationTokens5 = new ArrayList<TokenCode>(Arrays.aslist(TokenCode.IDENTIFIER, TokenCode.IF, TokenCode.FOR, TokenCode.RETURN, TokenCode.BREAK, TokenCode.CONTINUE, TokenCode.INT, TokenCode.REAL));
     private void method_declaration() {
         System.out.println("method_declaration");
         if (expect(TokenCode.STATIC) == false) {
@@ -323,7 +324,9 @@ public class Parser {
         if (expect(TokenCode.RPAREN) == false) {
             synchronize(method_declarationTokens4);
         }
-        expect(TokenCode.LBRACE);
+        if (expect(TokenCode.LBRACE)){
+            synchronize(method_declarationTokens5);
+        }
         variable_declarations();
         statement_list();
         expect(TokenCode.RBRACE);
