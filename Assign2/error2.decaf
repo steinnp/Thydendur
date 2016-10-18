@@ -1,0 +1,7 @@
+class Program { int i,j;
+none_such_type o;
+static void myFunc(int n,  j) {
+    n=n*2
+    return n; }
+    static void main() { i = myFunc(3); $i++;
+    } }

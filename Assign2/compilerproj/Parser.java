@@ -5,12 +5,14 @@ import java.util.stream.*;
 import java.util.*;
 import java.nio.file.*;
 
+
 public class Parser {
     private Lexer lexer;
     private Token currentToken;
     private Token nextToken;
     private String fileName;
     private int errorCount;
+    boolean debug = true;
     // if true there was an error and the input needs to be synchronized
     private boolean error;
    
@@ -116,7 +118,7 @@ public class Parser {
                 printError("Expected )", this.nextToken.getLine(), this.nextToken.getColumn());
                 break;
             case SEMICOLON:
-                printError("Expected semicolon", this.currentToken.getLine(), this.currentToken.getColumn() + 1);
+                printError("Expected semicolon", this.currentToken.getLine(), this.currentToken.getColumn() + this.currentToken.getSymbol().length());
                 break;
             case COMMA:
                 printError("Expected ,", this.nextToken.getLine(), this.nextToken.getColumn());
@@ -158,12 +160,17 @@ public class Parser {
     }
 
     private void getNext() {
-      currentToken = nextToken;
-      try {
-        nextToken = lexer.yylex();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+        this.currentToken = this.nextToken;
+        try {
+            this.nextToken = lexer.yylex();
+            if (this.nextToken.getTokenCode() == TokenCode.ERR_ILL_CHAR) {
+                printError("Illegal character", this.nextToken.getLine(), this.nextToken.getColumn());
+                this.errorCount++;
+                this.nextToken = lexer.yylex();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private boolean accept(TokenCode t) {
@@ -184,23 +191,30 @@ public class Parser {
      * false otherwise.
      */
     private boolean expect(TokenCode t) {
-       if (accept(t)) {
-           return true;
-       } else {
-           if (!this.error) {
-               // error handling
-               errorCount++;
-               error = true;
-               displayError(t);
-           }
-           return false;
-       }
+        if (accept(t)) {
+            return true;
+        } else {
+            if (!this.error) {
+                // error handling
+                errorCount++;
+                if (t == TokenCode.IDENTIFIER && this.nextToken.getTokenCode() == TokenCode.ERR_LONG_ID) {
+                    displayError(TokenCode.ERR_LONG_ID);
+                    getNext();
+                    return true;
+                } else {
+                    error = true;
+                    displayError(t);
+                }
+            }
+            return false;
+        }
     }
 
     static ArrayList<TokenCode> programTokens1 = new ArrayList<TokenCode>(Arrays.asList(TokenCode.LBRACE));
     static ArrayList<TokenCode> programTokens2 = new ArrayList<TokenCode>(Arrays.asList(TokenCode.INT, TokenCode.REAL, TokenCode.STATIC));
     private void program() {
-        System.out.println("program");
+        if (debug)
+            System.err.println("program");
         if (expect(TokenCode.CLASS) == false) {
             synchronize(programTokens1);
         }
@@ -214,11 +228,16 @@ public class Parser {
         variable_declarations();
 
         method_declarations();
-        expect(TokenCode.RBRACE);
+        if (this.nextToken.getTokenCode() == TokenCode.EOF) {
+            displayError(TokenCode.RBRACE);
+        } else {
+            expect(TokenCode.RBRACE);
+        }
     }
 
     private void variable_declarations() {
-        System.out.println("variable_declarations");
+        if (debug)
+            System.err.println("variable_declarations");
         if (this.nextToken.getTokenCode() != TokenCode.INT &&
             this.nextToken.getTokenCode() != TokenCode.REAL
         ) {
@@ -232,7 +251,8 @@ public class Parser {
 
     static ArrayList<TokenCode> typeTokens = new ArrayList<TokenCode>(Arrays.asList(TokenCode.COMMA, TokenCode.LPAREN, TokenCode.RPAREN, TokenCode.SEMICOLON, TokenCode.RBRACE));
     private void type() {
-        System.out.println("type");
+        if (debug)
+            System.err.println("type");
         if (accept(TokenCode.INT)) {
             return;
         } else if (accept(TokenCode.REAL)) {
@@ -248,13 +268,15 @@ public class Parser {
     }
 
     private void variable_list() {
-        System.out.println("variable_list");
+        if (debug)
+            System.err.println("variable_list");
         variable();
         variable_list2();
     }
 
     private void variable_list2() {
-        System.out.println("variable_list2");
+        if (debug)
+            System.err.println("variable_list2");
         if (this.nextToken.getTokenCode() != TokenCode.COMMA) {
             return;
         }
@@ -264,7 +286,8 @@ public class Parser {
     }
     static ArrayList<TokenCode> variableTokens = new ArrayList<TokenCode>(Arrays.asList(TokenCode.LBRACKET, TokenCode.SEMICOLON));
     private void variable() {
-        System.out.println("variable");
+        if (debug)
+            System.err.println("variable");
         if (expect(TokenCode.IDENTIFIER) == false) {
             synchronize(variableTokens);
         }
@@ -273,7 +296,8 @@ public class Parser {
     static ArrayList<TokenCode> variable2Tokens = new ArrayList<TokenCode>(Arrays.asList(TokenCode.RBRACKET, TokenCode.SEMICOLON));
     static ArrayList<TokenCode> variable2Tokens2 = new ArrayList<TokenCode>(Arrays.asList(TokenCode.SEMICOLON));
     private void variable2() {
-        System.out.println("variable2");
+        if (debug)
+            System.err.println("variable2");
         if (accept(TokenCode.LBRACKET)) {
             if (expect(TokenCode.NUMBER) == false) {
                 synchronize(variable2Tokens);
@@ -286,13 +310,15 @@ public class Parser {
     }
 
     private void method_declarations() {
-        System.out.println("method_declarations");
+        if (debug)
+            System.err.println("method_declarations");
         method_declaration();
         more_method_declarations();
     }
 
     private void more_method_declarations() {
-        System.out.println("more_method_declarations");
+        if (debug)
+            System.err.println("more_method_declarations");
         if (nextToken.getTokenCode() != TokenCode.STATIC) {
             if (nextToken.getTokenCode() == TokenCode.RBRACE) {
                 return;
@@ -306,9 +332,10 @@ public class Parser {
     static ArrayList<TokenCode> method_declarationTokens2 = new ArrayList<TokenCode>(Arrays.asList(TokenCode.LPAREN, TokenCode.LBRACE, TokenCode.IDENTIFIER, TokenCode.IF, TokenCode.FOR, TokenCode.RETURN, TokenCode.BREAK, TokenCode.CONTINUE, TokenCode.INT, TokenCode.REAL));
     static ArrayList<TokenCode> method_declarationTokens3 = new ArrayList<TokenCode>(Arrays.asList(TokenCode.RPAREN, TokenCode.LBRACE, TokenCode.IDENTIFIER, TokenCode.IF, TokenCode.FOR, TokenCode.RETURN, TokenCode.BREAK, TokenCode.CONTINUE, TokenCode.INT, TokenCode.REAL));
     static ArrayList<TokenCode> method_declarationTokens4 = new ArrayList<TokenCode>(Arrays.asList(TokenCode.LBRACE, TokenCode.IDENTIFIER, TokenCode.IF, TokenCode.FOR, TokenCode.RETURN, TokenCode.BREAK, TokenCode.CONTINUE, TokenCode.INT, TokenCode.REAL));
-    static ArrayList<TokenCode> method_declarationTokens5 = new ArrayList<TokenCode>(Arrays.aslist(TokenCode.IDENTIFIER, TokenCode.IF, TokenCode.FOR, TokenCode.RETURN, TokenCode.BREAK, TokenCode.CONTINUE, TokenCode.INT, TokenCode.REAL));
+    static ArrayList<TokenCode> method_declarationTokens5 = new ArrayList<TokenCode>(Arrays.asList(TokenCode.IDENTIFIER, TokenCode.IF, TokenCode.FOR, TokenCode.RETURN, TokenCode.BREAK, TokenCode.CONTINUE, TokenCode.INT, TokenCode.REAL));
     private void method_declaration() {
-        System.out.println("method_declaration");
+        if (debug)
+            System.err.println("method_declaration");
         if (expect(TokenCode.STATIC) == false) {
            synchronize(method_declarationTokens1); 
         }
@@ -318,9 +345,8 @@ public class Parser {
         }
         if (expect(TokenCode.LPAREN) == false) {
             synchronize(method_declarationTokens3);
-        } else {
-            parameters();
         }
+        parameters();
         if (expect(TokenCode.RPAREN) == false) {
             synchronize(method_declarationTokens4);
         }
@@ -333,7 +359,8 @@ public class Parser {
     }
 
     private void method_return_type() {
-        System.out.println("method_return_type");
+        if (debug)
+            System.err.println("method_return_type");
         if (accept(TokenCode.VOID)) {
             return; 
         } else {
@@ -342,32 +369,50 @@ public class Parser {
     }
 
     private void parameters() {
-        System.out.println("parameters");
+        if (debug)
+            System.err.println("parameters");
         if (this.nextToken.getTokenCode() == TokenCode.INT ||
             this.nextToken.getTokenCode() == TokenCode.REAL) {
             parameter_list();
         }
     }
-
+    
+    static ArrayList<TokenCode> parameter_listTokens = new ArrayList<TokenCode>(Arrays.asList(TokenCode.RPAREN, TokenCode.LBRACE, TokenCode.COMMA));
     private void parameter_list() {
-        System.out.println("parameter_list");
+        if (debug)
+            System.err.println("parameter_list");
         type();
-        expect(TokenCode.IDENTIFIER);
+        if (expect(TokenCode.IDENTIFIER) == false) {
+            synchronize(parameter_listTokens);
+        }
         parameter_list2();
     }
 
     private void parameter_list2() {
-        System.out.println("parameter_list2");
+        if (debug)
+            System.err.println("parameter_list2");
         if (accept(TokenCode.COMMA)) {
             type();
-            expect(TokenCode.IDENTIFIER);
+            if (expect(TokenCode.IDENTIFIER) == false) {
+                synchronize(parameter_listTokens);
+            }
+            parameter_list2();
+        } else if (nextToken.getTokenCode() == TokenCode.INT || nextToken.getTokenCode() == TokenCode.REAL) {
+            displayError(TokenCode.COMMA);
+            errorCount++;
+            type();
+            if (expect(TokenCode.IDENTIFIER) == false) {
+                synchronize(parameter_listTokens);
+            }
             parameter_list2();
         }
     }
 
     private void statement_list() {
-        System.out.println("statement_list");
+        if (debug)
+            System.err.println("statement_list");
         if (this.nextToken.getTokenCode() == TokenCode.IDENTIFIER ||
+            this.nextToken.getTokenCode() == TokenCode.ERR_LONG_ID ||
             this.nextToken.getTokenCode() == TokenCode.IF ||
             this.nextToken.getTokenCode() == TokenCode.FOR ||
             this.nextToken.getTokenCode() == TokenCode.RETURN ||
@@ -380,28 +425,49 @@ public class Parser {
         }
     }
 
+    static ArrayList<TokenCode> statementTokens1 = new ArrayList<TokenCode>(Arrays.asList(TokenCode.RPAREN, TokenCode.LBRACE, TokenCode.IDENTIFIER, TokenCode.NUMBER, TokenCode.NOT, TokenCode.ADDOP));
+    // used in multiple statements.
+    static ArrayList<TokenCode> statementTokens2 = new ArrayList<TokenCode>(Arrays.asList(TokenCode.LBRACE));
+    static ArrayList<TokenCode> statementTokens3 = new ArrayList<TokenCode>(Arrays.asList(TokenCode.IDENTIFIER, TokenCode.LPAREN, TokenCode.NUMBER, TokenCode.NOT, TokenCode.ADDOP, TokenCode.ASSIGNOP, TokenCode.SEMICOLON));
+    static ArrayList<TokenCode> statementTokens4 = new ArrayList<TokenCode>(Arrays.asList(TokenCode.IDENTIFIER, TokenCode.LPAREN, TokenCode.NUMBER, TokenCode.NOT, TokenCode.ADDOP, TokenCode.SEMICOLON));
     private void statement() {
-        System.out.println("statement");
-        if (accept(TokenCode.IDENTIFIER)) {
+        if (debug)
+            System.err.println("statement");
+        if (accept(TokenCode.IDENTIFIER) || accept(TokenCode.ERR_LONG_ID)) {
+            if (this.currentToken.getTokenCode() == TokenCode.ERR_LONG_ID) {
+                printError("Identifier too long", this.currentToken.getLine(), this.currentToken.getColumn());
+                this.errorCount++;
+            }
             statement2();
             return;
         } else if (accept(TokenCode.IF)) {
-            expect(TokenCode.LPAREN);
+            if (expect(TokenCode.LPAREN) == false) {
+               synchronize(statementTokens1); 
+            }
             expression();
-            expect(TokenCode.RPAREN);
+           
+            if (expect(TokenCode.RPAREN) == false) {
+               synchronize(statementTokens2); 
+            }
             statement_block();
             optional_else();
             return;
         } else if (accept(TokenCode.FOR)) {
-            expect(TokenCode.LPAREN);
+            if (expect(TokenCode.LPAREN) == false) {
+                synchronize(statementTokens3);
+            }
             variable_loc();
-            expect(TokenCode.ASSIGNOP);
+            if (expect(TokenCode.ASSIGNOP) == false) {
+                synchronize(statementTokens4);
+            }
             expression();
             expect(TokenCode.SEMICOLON);
             expression();
             expect(TokenCode.SEMICOLON);
             incr_decr_var();
-            expect(TokenCode.RPAREN);
+            if (expect(TokenCode.RPAREN) == false) {
+                synchronize(statementTokens2);
+            }
             statement_block();
             return;
         } else if (accept(TokenCode.RETURN)) {
@@ -420,11 +486,15 @@ public class Parser {
         }
     }
 
+    static ArrayList<TokenCode> statement2Tokens1 = new ArrayList<TokenCode>(Arrays.asList(TokenCode.LBRACE));
     private void statement2() {
-        System.out.println("statement2");
+        if (debug)
+            System.err.println("statement2");
         if (accept(TokenCode.LPAREN)) {
             expression();
-            expect(TokenCode.RPAREN);
+            if (expect(TokenCode.RPAREN) == false) {
+                synchronize(statement2Tokens1);
+            }
             statement_block();
             optional_else();
             return;
@@ -435,13 +505,17 @@ public class Parser {
         }
     }
 
+    static ArrayList<TokenCode> statement3Tokens1 = new ArrayList<TokenCode>(Arrays.asList(TokenCode.IDENTIFIER, TokenCode.LPAREN, TokenCode.NUMBER, TokenCode.NOT, TokenCode.ADDOP, TokenCode.SEMICOLON));
     private void statement3() {
-        System.out.println("statement3");
+        if (debug)
+            System.err.println("statement3");
         if (accept(TokenCode.INCDECOP)) {
             expect(TokenCode.SEMICOLON);
             return;
         } else {
-            expect(TokenCode.ASSIGNOP);
+            if (expect(TokenCode.ASSIGNOP) == false) {
+                synchronize(statement3Tokens1);
+            }
             expression();
             expect(TokenCode.SEMICOLON);
             return;
@@ -449,7 +523,8 @@ public class Parser {
     }
 
     private void optional_expression() {
-        System.out.println("optional_expression");
+        if (debug)
+            System.err.println("optional_expression");
         if (this.nextToken.getTokenCode() == TokenCode.IDENTIFIER ||
             this.nextToken.getTokenCode() == TokenCode.NUMBER ||
             this.nextToken.getTokenCode() == TokenCode.LPAREN ||
@@ -459,28 +534,35 @@ public class Parser {
         }
     }
 
+    static ArrayList<TokenCode> statement_blockTokens = new ArrayList<TokenCode>(Arrays.asList(TokenCode.IDENTIFIER, TokenCode.IF, TokenCode.FOR, TokenCode.RETURN, TokenCode.BREAK, TokenCode.CONTINUE, TokenCode.LBRACE, TokenCode.RBRACE));
     private void statement_block() {
-        System.out.println("statement_block");
-        expect(TokenCode.LBRACE);
+        if (debug)
+            System.err.println("statement_block");
+        if (expect(TokenCode.LBRACE) == false) {
+            synchronize(statement_blockTokens);
+        }
         statement_list();
         expect(TokenCode.RBRACE);
     }
 
     private void incr_decr_var() {
-        System.out.println("incr_decr_var");
+        if (debug)
+            System.err.println("incr_decr_var");
         variable_loc();
         expect(TokenCode.INCDECOP);
     }
 
     private void optional_else() {
-        System.out.println("optional_else");
+        if (debug)
+            System.err.println("optional_else");
         if (accept(TokenCode.ELSE)) {
             statement_block();
         }
     }
 
     private void expression_list() {
-        System.out.println("expression_list");
+        if (debug)
+            System.err.println("expression_list");
         if (this.nextToken.getTokenCode() == TokenCode.IDENTIFIER ||
             this.nextToken.getTokenCode() == TokenCode.NUMBER ||
             this.nextToken.getTokenCode() == TokenCode.LPAREN ||
@@ -492,7 +574,8 @@ public class Parser {
     }
 
     private void more_expressions() {
-        System.out.println("more_expressions");
+        if (debug)
+            System.err.println("more_expressions");
         if (accept(TokenCode.COMMA)) {
             expression();
             more_expressions();
@@ -500,20 +583,23 @@ public class Parser {
     }
 
     private void expression() {
-        System.out.println("expression");
+        if (debug)
+            System.err.println("expression");
         simple_expression();
         expression2();
     }
 
     private void expression2() {
-        System.out.println("expression2");
+        if (debug)
+            System.err.println("expression2");
         if (accept(TokenCode.RELOP)) {
             simple_expression();
         }
     }
 
     private void simple_expression() {
-        System.out.println("simple_expression");
+        if (debug)
+            System.err.println("simple_expression");
         if (this.nextToken.getTokenCode() == TokenCode.ADDOP) {
             sign();
             term();
@@ -525,7 +611,8 @@ public class Parser {
     }
 
     private void simple_expression2() {
-        System.out.println("simple_expression2");
+        if (debug)
+            System.err.println("simple_expression2");
         if (accept(TokenCode.ADDOP)) {
             term();
             simple_expression2();
@@ -533,13 +620,15 @@ public class Parser {
     }
 
     private void term() {
-        System.out.println("term");
+        if (debug)
+            System.err.println("term");
         factor();
         term2();
     }
 
     private void term2() {
-        System.out.println("term2");
+        if (debug)
+            System.err.println("term2");
         if (accept(TokenCode.MULOP)) {
             factor();
             term2();
@@ -547,8 +636,10 @@ public class Parser {
         }
     }
 
+    static ArrayList<TokenCode> factorTokens = new ArrayList<TokenCode>(Arrays.asList());
     private void factor() {
-        System.out.println("factor");
+        if (debug)
+            System.err.println("factor");
         if (accept(TokenCode.IDENTIFIER)) {
             factor2();
             return;
@@ -561,15 +652,15 @@ public class Parser {
         } else if (accept(TokenCode.NOT)) {
             factor();
         } else {
-            // TODO error handling
-            System.out.println("error in factor");
-            System.out.println(this.currentToken.getTokenCode());
-            System.out.println(this.nextToken.getTokenCode());
+            printError("Unexpected token", this.nextToken.getLine(), this.nextToken.getColumn());
+            this.error = true;
+            this.errorCount++;
         }
     }
 
     private void factor2() {
-        System.out.println("factor2");
+        if (debug)
+            System.err.println("factor2");
         if (accept(TokenCode.LPAREN)) {
             expression_list();
             expect(TokenCode.RPAREN);
@@ -580,33 +671,31 @@ public class Parser {
     }
 
     private void variable_loc() {
-        System.out.println("variable_loc");
+        if (debug)
+            System.err.println("variable_loc");
         expect(TokenCode.IDENTIFIER);
         variable_loc2();
     }
 
 
     private void variable_loc2() {
-        System.out.println("variable_loc2");
+        if (debug)
+            System.err.println("variable_loc2");
         if (accept(TokenCode.LBRACKET)) {
             expression();
-            /*
-            if (this.error) {
-                synchronize(TokenCode.RBRACKET);
-            }
-            */
             expect(TokenCode.RBRACKET);
         }
     }
 
     private void sign() {
-        System.out.println("sign");
+        if (debug)
+            System.err.println("sign");
         expect(TokenCode.ADDOP);
     }
 
     public void parse() {
         getNext();
-        if (nextToken.getTokenCode() == TokenCode.EOF) {
+        if (nextToken != null && nextToken.getTokenCode() == TokenCode.EOF) {
             return;
         }
         program();

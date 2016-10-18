@@ -1,2 +1,3 @@
 #!/bin/bash
-java compilerproj.TokenDumper test.decaf
+java -jar LexAnal.jar error2.decaf 2> test.txt
+wc -l test.txt
