@@ -1,0 +1,5 @@
+Cannot find file null
+Exception in thread "main" java.lang.NullPointerException
+	at compilerproj.Parser.getNext(Parser.java:186)
+	at compilerproj.Parser.parse(Parser.java:720)
+	at compilerproj.Parser.main(Parser.java:731)

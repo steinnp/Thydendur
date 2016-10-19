@@ -184,7 +184,7 @@ public class Parser {
         this.currentToken = this.nextToken;
         try {
             this.nextToken = lexer.yylex();
-            if (this.nextToken.getTokenCode() == TokenCode.ERR_ILL_CHAR) {
+            while (this.nextToken.getTokenCode() == TokenCode.ERR_ILL_CHAR) {
                 printError("Illegal character", this.nextToken.getLine(), this.nextToken.getColumn());
                 this.errorCount++;
                 this.nextToken = lexer.yylex();
