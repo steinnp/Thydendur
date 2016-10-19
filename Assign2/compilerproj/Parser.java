@@ -5,17 +5,26 @@ import java.util.stream.*;
 import java.util.*;
 import java.nio.file.*;
 
+/*
+ * Functions have the same names as the corresponding grammar rules in the accompanying pdf file.
+ * The general strategy for the parser is to find the synchronizing tokens for each nonterminal parsed and try
+ * to synchronize as soon as possible by having a custom set of synchronizing tokens for each nonterminal encountered
+ * in the parser.
+ */
 
 public class Parser {
+    // private variables
     private Lexer lexer;
     private Token currentToken;
     private Token nextToken;
     private String fileName;
     private int errorCount;
-    boolean debug = true;
+    // set to true for debugging mode
+    boolean debug = false;
     // if true there was an error and the input needs to be synchronized
     private boolean error;
    
+    // constructors
     public Parser(String fileName) {
         try {
             this.lexer = new Lexer(new FileReader(fileName));
@@ -26,6 +35,7 @@ public class Parser {
         this.errorCount = 0;
     }
 
+    // Reads line number lineNumber in file fileName (initialized in constructor)
     private String readLine(int lineNumber) {
         try (Stream<String> lines = Files.lines(Paths.get(this.fileName))) {
                 String line = lines.skip(lineNumber).findFirst().get();
@@ -39,6 +49,10 @@ public class Parser {
         }
     }
 
+    /*
+     * Prints out line from file in line number line, then prints out the error message message
+     * in the next line starting at column column.
+     */
     private void printError(String message, int line, int column) {
         String errorMessage = Integer.toString(line + 1) + " : " + readLine(line) + "\n";
         for (int i = 0; i < column + 3 + Integer.toString(line).length(); i++) {
@@ -49,6 +63,9 @@ public class Parser {
         System.out.println(errorMessage);
     }
 
+    /*
+     * calls printError with appropriate messages by tokenCode
+     */
     private void displayError(TokenCode t) {
         switch(t) {
             case IDENTIFIER:
@@ -159,6 +176,10 @@ public class Parser {
         }
     }
 
+    /*
+     * reads in the next token from the lexer,
+     * prints error message for illegal characters
+     */
     private void getNext() {
         this.currentToken = this.nextToken;
         try {
@@ -173,6 +194,9 @@ public class Parser {
         }
     }
 
+    /*
+     * reads in next token if the current nextToken is the expected token.
+     */
     private boolean accept(TokenCode t) {
        if (t == this.nextToken.getTokenCode()) {
            if (t != TokenCode.EOF) {
@@ -221,7 +245,6 @@ public class Parser {
         if (expect(TokenCode.IDENTIFIER) == false) {
             synchronize(programTokens1);
         }
-        // synchronize lbrace
         if (expect(TokenCode.LBRACE) == false) {
             synchronize(programTokens2);
         }
@@ -699,11 +722,7 @@ public class Parser {
             return;
         }
         program();
-        if (this.errorCount == 0) {
-            System.out.println("SUCCESS");
-        } else {
-            System.out.println("there were " + this.errorCount + " errors.");
-        }
+        System.out.println("Number of errors: " + this.errorCount);
         return;
     }
 
