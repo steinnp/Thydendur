@@ -1,0 +1,18 @@
+class Program {
+  int i;
+  int j;
+
+  static void main() {
+    j = 1;
+	for(i=0;i<10;i++) {
+      j = (i + j);
+      /*
+        if (i > 0) {
+            j = j + 1;
+        }
+        */
+    }
+    writeln(i);
+    writeln(j);
+  }
+}

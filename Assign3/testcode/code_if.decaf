@@ -1,0 +1,19 @@
+class Program {
+  
+  static void main() {
+    int i;
+    int j;
+
+    i = 1;
+    j = -1;
+
+    if (i > j) {
+      i = (1 - j);
+    }
+    else {
+      i++;
+    }
+    test(i);
+  	writeln(i);
+  }
+}
